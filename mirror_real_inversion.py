@@ -2,7 +2,7 @@ import re
 
 notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
-pattern = r"[A-G](?:[#b])?"
+pattern = r"[A-G][#B]?"
 
 
 def mirror_inversion(axis, notes_in):
@@ -21,23 +21,34 @@ def mirror_inversion(axis, notes_in):
 
 
 def validate_input(pattern):
+    invalid_notes = ["CB", "B#", "DB", "EB", "E#", "FB", "GB", "AB", "BB"]
+
     while True:
-        inversion_axis = re.findall(pattern, input("Axis: ").title())[0]
-        if inversion_axis in ["Cb", "B#", "Db", "Eb", "E#" "Fb", "Gb", "Ab", "Bb"]:
+        axis_input = input("Axis: ").upper().strip()
+        # re.fullmatch ensures the ENTIRE string matches a single note pattern
+        if not re.fullmatch(pattern, axis_input):
+            print("ValueError: Invalid note format. Please enter exactly one valid note.")
+            continue
+            
+        inversion_axis = axis_input
+        if inversion_axis in invalid_notes:
             print("ValueError: Only sharps (i.e. nice sharps...) for now.")
             continue
         else:
             break
 
     while True:
-        notes_in = re.findall(pattern, input("Chord/notes: ").title())
-        if any(
-            x in ["Cb", "B#", "Db", "Eb", "E#" "Fb", "Gb", "Ab", "Bb"] for x in notes_in
-        ):
+        notes_in = re.findall(pattern, input("Chord/notes: ").upper())
+        if not notes_in:
+            print("ValueError: Invalid note format.")
+            continue
+            
+        if any(x in invalid_notes for x in notes_in):
             print("ValueError: Only sharps (i.e. nice sharps...) for now.")
             continue
         else:
             break
+            
     return inversion_axis, notes_in
 
 
