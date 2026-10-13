@@ -21,16 +21,17 @@ def mirror_inversion(axis, notes_in):
 
 
 def validate_input(pattern):
+    # Keep using the regular standard pattern: r"[A-G](?:[#b])?"
     invalid_notes = ["CB", "B#", "DB", "EB", "E#", "FB", "GB", "AB", "BB"]
 
     while True:
-        axis_input = input("Axis: ").upper().strip()
-        # re.fullmatch ensures the ENTIRE string matches a single note pattern
-        if not re.fullmatch(pattern, axis_input):
+        axis_raw = input("Axis: ").strip()
+        # Validate using original mixed-case regex first
+        if not re.fullmatch(r"[A-G](?:[#b])?", axis_raw):
             print("ValueError: Invalid note format. Please enter exactly one valid note.")
             continue
             
-        inversion_axis = axis_input
+        inversion_axis = axis_raw.upper()
         if inversion_axis in invalid_notes:
             print("ValueError: Only sharps (i.e. nice sharps...) for now.")
             continue
@@ -38,11 +39,16 @@ def validate_input(pattern):
             break
 
     while True:
-        notes_in = re.findall(pattern, input("Chord/notes: ").upper())
-        if not notes_in:
-            print("ValueError: Invalid note format.")
+        notes_raw = input("Chord/notes: ").strip()
+        # Find raw notes like 'Ab', 'B', 'C' before capitalizing them
+        matches = re.findall(r"[A-G](?:[#b])?", notes_raw)
+        
+        # Verify the user didn't type junk letters (e.g. 'AbXT')
+        if not matches or "".join(matches) != notes_raw.replace(" ", ""):
+            print("ValueError: Invalid note(s).")
             continue
             
+        notes_in = [x.upper() for x in matches]
         if any(x in invalid_notes for x in notes_in):
             print("ValueError: Only sharps (i.e. nice sharps...) for now.")
             continue
